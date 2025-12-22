@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DynamicForm from "./DynamicForm";
 import DynamicTable from "./DynamicTable";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "./ConfirmModel";
 import { api } from "../services/api";
 
 const ModulePage = ({ moduleConfig }) => {
