@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FieldRenderer from "./FieldRender";
+import FieldRenderer from "./fieldRenderer";
 import SubStringField from "./SubStringField";
 
 const DynamicForm = ({ fields, onSubmit, initialData = {}, onCancel }) => {
