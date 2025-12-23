@@ -1,14 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import FieldRenderer from "./fieldRenderer.jsx";
 
 const SubStringField = ({ field, value, onChange }) => {
   const items = value || [];
 
+  // Initialize with one empty item if empty
+  useEffect(() => {
+    if (items.length === 0) {
+      const newItem = field.fields.reduce((acc, f) => {
+        acc[f.name] = "";
+        return acc;
+      }, {});
+      onChange([newItem]);
+    }
+  }, []);
+
   const addItem = () => {
-    const newItem = {};
-    field.fields.forEach((f) => {
-      newItem[f.name] = "";
-    });
+    const newItem = field.fields.reduce((acc, f) => {
+      acc[f.name] = "";
+      return acc;
+    }, {});
     onChange([...items, newItem]);
   };
 

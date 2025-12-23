@@ -1,89 +1,33 @@
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 class ApiService {
-  constructor() {
-    this.data = {
-      categories: [
-        {
-          id: "1",
-          name: "Electronics",
-          description: "Electronic devices",
-          tags: ["tech", "gadgets"],
-        },
-        {
-          id: "2",
-          name: "Clothing",
-          description: "Apparel and fashion",
-          tags: ["fashion", "wear"],
-        },
-      ],
-      users: [
-        {
-          id: "1",
-          name: "John Doe",
-          email: "john@example.com",
-          role: "admin",
-          status: true,
-        },
-        {
-          id: "2",
-          name: "Jane Smith",
-          email: "jane@example.com",
-          role: "user",
-          status: true,
-        },
-      ],
-      products: [
-        {
-          id: "1",
-          name: "Laptop",
-          price: 999,
-          description: "High-performance laptop",
-          category: "Electronics",
-          rating: 5,
-          inStock: true,
-          materials: [
-            { material: "Aluminum", percentage: 70 },
-            { material: "Plastic", percentage: 30 },
-          ],
-        },
-      ],
-      orders: [],
-    };
-  }
-
   async request(url, method = "GET", data = null) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // ✅ Always prefix /api here
+    const fullUrl = `${API_BASE_URL}/api${url}`;
 
-    const modulePath = url.replace("/api/", "");
+    const options = {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-    if (!this.data[modulePath]) {
-      this.data[modulePath] = [];
+    if (data && (method === "POST" || method === "PUT")) {
+      options.body = JSON.stringify(data);
     }
 
-    switch (method) {
-      case "GET":
-        return { data: this.data[modulePath] };
-      case "POST":
-        const newItem = { ...data, id: Date.now().toString() };
-        this.data[modulePath].push(newItem);
-        return { data: newItem };
-      case "PUT":
-        const updateId = url.split("/").pop();
-        const updateIndex = this.data[modulePath].findIndex(
-          (item) => item.id === updateId
-        );
-        if (updateIndex !== -1) {
-          this.data[modulePath][updateIndex] = { ...data, id: updateId };
-          return { data: this.data[modulePath][updateIndex] };
-        }
-        throw new Error("Item not found");
-      case "DELETE":
-        const deleteId = url.split("/").pop();
-        this.data[modulePath] = this.data[modulePath].filter(
-          (item) => item.id !== deleteId
-        );
-        return { data: { success: true } };
-      default:
-        throw new Error("Unsupported method");
+    try {
+      const response = await fetch(fullUrl, options);
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+      const result = await response.json();
+      return { data: result.data || result }; // normalize response
+    } catch (error) {
+      console.error("API request failed:", error);
+      throw error;
     }
   }
 

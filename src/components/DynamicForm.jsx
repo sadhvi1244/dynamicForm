@@ -7,7 +7,14 @@ const DynamicForm = ({ fields, onSubmit, initialData = {}, onCancel }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    setFormData(initialData);
+    // Ensure subString fields are initialized
+    const newData = { ...initialData };
+    fields.forEach((f) => {
+      if (f.type === "subString" && !newData[f.name]) {
+        newData[f.name] = [];
+      }
+    });
+    setFormData(newData);
   }, [initialData]);
 
   const handleFieldChange = (fieldName, value) => {
@@ -29,11 +36,33 @@ const DynamicForm = ({ fields, onSubmit, initialData = {}, onCancel }) => {
     const newErrors = {};
 
     fields.forEach((field) => {
+      const value = formData[field.name];
+
       if (field.required) {
-        const value = formData[field.name];
-        if (!value || (typeof value === "string" && value.trim() === "")) {
+        if (
+          value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "") ||
+          (Array.isArray(value) && value.length === 0)
+        ) {
           newErrors[field.name] = `${field.label} is required`;
         }
+      }
+
+      // Validate subString fields
+      if (field.type === "subString" && Array.isArray(value)) {
+        value.forEach((item, idx) => {
+          field.fields.forEach((subField) => {
+            if (
+              subField.required &&
+              (!item[subField.name] || item[subField.name] === "")
+            ) {
+              newErrors[
+                `${field.name}.${idx}.${subField.name}`
+              ] = `${subField.label} is required`;
+            }
+          });
+        });
       }
     });
 

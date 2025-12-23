@@ -3,7 +3,7 @@ export const recordConfig = {
     users: {
       route: "/users",
       frontend: {
-        apiPath: "/api/users",
+        apiPath: "/users",
         label: "Users",
         fields: [
           { name: "name", type: "text", label: "Name", required: true },
@@ -36,7 +36,7 @@ export const recordConfig = {
     categories: {
       route: "/categories",
       frontend: {
-        apiPath: "/api/categories",
+        apiPath: "/categories",
         label: "Categories",
         fields: [
           { name: "name", type: "text", label: "Name", required: true },
@@ -58,25 +58,28 @@ export const recordConfig = {
     products: {
       route: "/products",
       frontend: {
-        apiPath: "/api/products",
+        apiPath: "/products",
         label: "Products",
         fields: [
           { name: "name", type: "text", label: "Product Name", required: true },
           { name: "price", type: "number", label: "Price", required: true },
           { name: "description", type: "textarea", label: "Description" },
+
           {
             name: "category",
             type: "dropdown",
             label: "Category",
             required: true,
-            apiOptions: "/api/categories",
+            apiOptions: "/categories",
             optionLabel: "name",
-            optionValue: "id",
+            optionValue: "_id",
           },
+
           { name: "rating", type: "rating", label: "Rating", min: 1, max: 5 },
           { name: "image", type: "imageLink", label: "Product Image" },
           { name: "inStock", type: "checkbox", label: "In Stock" },
           { name: "releaseDate", type: "date", label: "Release Date" },
+
           {
             name: "materials",
             type: "subString",
@@ -92,10 +95,17 @@ export const recordConfig = {
             ],
           },
         ],
+
         columns: [
           { key: "name", label: "Name" },
           { key: "price", label: "Price", render: (val) => `$${val}` },
-          { key: "category", label: "Category" },
+
+          {
+            key: "category",
+            label: "Category",
+            render: (val) => val?.name || "",
+          },
+
           { key: "rating", label: "Rating" },
           {
             key: "inStock",
@@ -117,17 +127,36 @@ export const recordConfig = {
     orders: {
       route: "/orders",
       frontend: {
-        apiPath: "/api/orders",
+        apiPath: "/orders",
         label: "Orders",
         fields: [
-          {
-            name: "orderNumber",
-            type: "text",
-            label: "Order #",
-            required: true,
-          },
           { name: "customer", type: "text", label: "Customer", required: true },
-          { name: "amount", type: "number", label: "Amount", required: true },
+
+          {
+            name: "items",
+            type: "subString",
+            label: "Order Items",
+            required: true,
+            fields: [
+              {
+                name: "product",
+                type: "dropdown",
+                label: "Product",
+                required: true,
+                apiOptions: "/products",
+                optionLabel: "name",
+                optionValue: "_id",
+              },
+              {
+                name: "quantity",
+                type: "number",
+                label: "Quantity",
+                required: true,
+                min: 1,
+              },
+            ],
+          },
+
           {
             name: "status",
             type: "dropdown",
@@ -139,12 +168,12 @@ export const recordConfig = {
               { value: "delivered", label: "Delivered" },
             ],
           },
+
           { name: "location", type: "geolocation", label: "Delivery Location" },
         ],
         columns: [
-          { key: "orderNumber", label: "Order #" },
           { key: "customer", label: "Customer" },
-          { key: "amount", label: "Amount", render: (val) => `$${val}` },
+          { key: "amount", label: "Amount", render: (v) => `$${v}` },
           { key: "status", label: "Status" },
         ],
       },
